@@ -18,6 +18,7 @@ import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2Intent
 import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2WebhookRequest;
 import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2WebhookResponse;
 import com.rak.chatbot.service.ChequeBookService;
+import com.rak.chatbot.service.CreditCardService;
 import com.rak.chatbot.service.OtpEvaluationService;
 import com.rak.chatbot.service.PhoneNumberEvaluationService;
 
@@ -35,6 +36,9 @@ public class RakBankAIChatBotController {
 	@Autowired
 	ChequeBookService chequeBookService;
 	
+	@Autowired
+	CreditCardService creditCardService;
+	
 
 	@PostMapping("/webhookcallback")
 	public String webhookcallback(@RequestBody String rawData) throws IOException {
@@ -45,9 +49,9 @@ public class RakBankAIChatBotController {
 				.parse(GoogleCloudDialogflowV2WebhookRequest.class);
 
 		// Step 2. Process the request
-		System.out.println(request.getQueryResult().getParameters().get("phone-number"));
-		System.out.println(request.getQueryResult().getParameters().get("otp"));
-		System.out.println(request.getQueryResult().getParameters().get("cheque-book-req-no"));
+		//System.out.println(request.getQueryResult().getParameters().get("phone-number"));
+		//System.out.println(request.getQueryResult().getParameters().get("otp"));
+		//System.out.println(request.getQueryResult().getParameters().get("cheque-book-req-no"));
 		if (null != request.getQueryResult().getParameters().get("phone-number")) {
 			responseString = phoneNumberEvaluationService
 					.evaluatePhoneNumber((String) request.getQueryResult().getParameters().get("phone-number"));
@@ -58,6 +62,14 @@ public class RakBankAIChatBotController {
 			String chequeBookReqNo = (String) request.getQueryResult().getParameters().get("cheque-book-req-no");
 			System.out.println(chequeBookReqNo);
 			responseString = chequeBookService.checkStatus(chequeBookReqNo);
+		} else if(null != request.getQueryResult().getParameters().get("credit-card-no")) {
+			String creditCardNo = (String) request.getQueryResult().getParameters().get("credit-card-no");
+			String requestFor = (String) request.getQueryResult().getParameters().get("request-For");
+			System.out.println(creditCardNo + " " + requestFor);
+			if(requestFor.equals("balance"))
+			  responseString = creditCardService.checkBalance(creditCardNo);
+			else if (requestFor.equals("minimum_amount"))
+			  responseString = creditCardService.checkMinimumAmountToBePaid(creditCardNo);
 		}
 
 		// Step 3. Build the response message
