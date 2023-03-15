@@ -12,4 +12,6 @@ public interface ChequeBookRepository extends JpaRepository<ChequeBook, Long> {
 
 	public Optional<ChequeBook> findByRequestNumber(String requestNumber);
 
+	public Optional<ChequeBook> findByAccountNumber(String accountNumber);
+
 }
