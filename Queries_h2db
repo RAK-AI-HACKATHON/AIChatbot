@@ -1,0 +1,26 @@
+CREATE TABLE CUSTOMER_MASTER(  
+    id long NOT NULL AUTO_INCREMENT,  
+    name varchar(45) NOT NULL,  
+    account_number varchar(14) NOT NULL,
+    mobile_number varchar(10) not null,	
+    otp int NOT NULL,  
+    PRIMARY KEY (id)  
+);  
+
+INSERT INTO CUSTOMER_MASTER VALUES(1,'Suganya','123456789012','0588211467',1234);
+INSERT INTO CUSTOMER_MASTER VALUES(2,'Vignesh','123456789013','0503371256',1234);
+
+
+CREATE TABLE CHEQUE_BOOK(  
+    id long NOT NULL AUTO_INCREMENT,  
+    request_number varchar(14) NOT NULL,  
+    account_number varchar(13) NOT NULL,
+    mobile_number varchar(10) not null,
+	status varchar(30) not null,
+	otp int NOT NULL,
+    PRIMARY KEY (id)  
+);  
+
+INSERT INTO CHEQUE_BOOK VALUES(1,'1234567890123','987654321012','0588211467','Under Process',1234);
+
+INSERT INTO CHEQUE_BOOK VALUES(2,'1234567890124','987654321013','0503371256','Out for delivery',1234); 
