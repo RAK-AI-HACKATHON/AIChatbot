@@ -17,59 +17,67 @@ import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2Intent
 import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2IntentMessageText;
 import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2WebhookRequest;
 import com.google.api.services.dialogflow.v3.model.GoogleCloudDialogflowV2WebhookResponse;
+import com.rak.chatbot.service.ChequeBookService;
 import com.rak.chatbot.service.OtpEvaluationService;
 import com.rak.chatbot.service.PhoneNumberEvaluationService;
 
 @RestController
 public class RakBankAIChatBotController {
 
-    private final JacksonFactory jacksonFactory = new JacksonFactory();
-    
-    @Autowired
-    PhoneNumberEvaluationService phoneNumberEvaluationService;
-    
-    @Autowired
-    OtpEvaluationService otpEvaluationService;
-    
+	private final JacksonFactory jacksonFactory = new JacksonFactory();
+
+	@Autowired
+	PhoneNumberEvaluationService phoneNumberEvaluationService;
+
+	@Autowired
+	OtpEvaluationService otpEvaluationService;
+
+	@Autowired
+	ChequeBookService chequeBookService;
+	
 
 	@PostMapping("/webhookcallback")
-	public String webhookcallback(@RequestBody String rawData) throws IOException 
-	{
+	public String webhookcallback(@RequestBody String rawData) throws IOException {
 		String responseString = null;
 		System.out.println(rawData);
-		//Step 1. Parse the request
-        GoogleCloudDialogflowV2WebhookRequest request = jacksonFactory
-                        .createJsonParser(rawData)
-                        .parse(GoogleCloudDialogflowV2WebhookRequest.class);
+		// Step 1. Parse the request
+		GoogleCloudDialogflowV2WebhookRequest request = jacksonFactory.createJsonParser(rawData)
+				.parse(GoogleCloudDialogflowV2WebhookRequest.class);
 
-        //Step 2. Process the request
-        System.out.println(request.getQueryResult().getParameters().get("phone-number"));
-        System.out.println(request.getQueryResult().getParameters().get("otp"));
-        if(null != request.getQueryResult().getParameters().get("phone-number")) {
-        	responseString = phoneNumberEvaluationService.evaluatePhoneNumber((String)request.getQueryResult().getParameters().get("phone-number"));
-        }else if(null != request.getQueryResult().getParameters().get("otp")) {
-        	Integer otpValue = ((BigDecimal) request.getQueryResult().getParameters().get("otp")).intValue();
-        	responseString = otpEvaluationService.evaluateOTP(otpValue);
-        }
-        
-        //Step 3. Build the response message
-        GoogleCloudDialogflowV2IntentMessage msg = new GoogleCloudDialogflowV2IntentMessage();
-        GoogleCloudDialogflowV2IntentMessageText text = new GoogleCloudDialogflowV2IntentMessageText();
-        List<String> textList = new ArrayList<String>();
-        textList.add(responseString);
-        text.setText(textList);
-        msg.setText(text);
+		// Step 2. Process the request
+		System.out.println(request.getQueryResult().getParameters().get("phone-number"));
+		System.out.println(request.getQueryResult().getParameters().get("otp"));
+		System.out.println(request.getQueryResult().getParameters().get("cheque-book-req-no"));
+		if (null != request.getQueryResult().getParameters().get("phone-number")) {
+			responseString = phoneNumberEvaluationService
+					.evaluatePhoneNumber((String) request.getQueryResult().getParameters().get("phone-number"));
+		} else if (null != request.getQueryResult().getParameters().get("otp")) {
+			Integer otpValue = ((BigDecimal) request.getQueryResult().getParameters().get("otp")).intValue();
+			responseString = otpEvaluationService.evaluateOTP(otpValue);
+		} else if (null != request.getQueryResult().getParameters().get("cheque-book-req-no")) {
+			String chequeBookReqNo = (String) request.getQueryResult().getParameters().get("cheque-book-req-no");
+			System.out.println(chequeBookReqNo);
+			responseString = chequeBookService.checkStatus(chequeBookReqNo);
+		}
 
-        GoogleCloudDialogflowV2WebhookResponse response = new GoogleCloudDialogflowV2WebhookResponse();
-        List<GoogleCloudDialogflowV2IntentMessage> msgList = new ArrayList<GoogleCloudDialogflowV2IntentMessage>();
-        msgList.add(msg);
-        
-        response.setFulfillmentMessages(msgList);
-        StringWriter stringWriter = new StringWriter();
-        JsonGenerator jsonGenerator = jacksonFactory.createJsonGenerator(stringWriter);
-        jsonGenerator.enablePrettyPrint();
-        jsonGenerator.serialize(response);
-        jsonGenerator.flush();
-        return stringWriter.toString();
+		// Step 3. Build the response message
+		GoogleCloudDialogflowV2IntentMessage msg = new GoogleCloudDialogflowV2IntentMessage();
+		GoogleCloudDialogflowV2IntentMessageText text = new GoogleCloudDialogflowV2IntentMessageText();
+		List<String> textList = new ArrayList<String>();
+		textList.add(responseString);
+		text.setText(textList);
+		msg.setText(text);
+
+		GoogleCloudDialogflowV2WebhookResponse response = new GoogleCloudDialogflowV2WebhookResponse();
+		List<GoogleCloudDialogflowV2IntentMessage> msgList = new ArrayList<GoogleCloudDialogflowV2IntentMessage>();
+		msgList.add(msg);
+
+		response.setFulfillmentMessages(msgList);
+		StringWriter stringWriter = new StringWriter();
+		JsonGenerator jsonGenerator = jacksonFactory.createJsonGenerator(stringWriter);
+		jsonGenerator.enablePrettyPrint();
+		jsonGenerator.serialize(response);
+		jsonGenerator.flush();
+		return stringWriter.toString();
 	}
 }
