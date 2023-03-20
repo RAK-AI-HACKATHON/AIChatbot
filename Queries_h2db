@@ -24,3 +24,17 @@ CREATE TABLE CHEQUE_BOOK(
 INSERT INTO CHEQUE_BOOK VALUES(1,'1234567890123','987654321012','0588211467','Under Process',1234);
 
 INSERT INTO CHEQUE_BOOK VALUES(2,'1234567890124','987654321013','0503371256','Out for delivery',1234); 
+
+
+CREATE TABLE CREDIT_CARD(  
+    id long NOT NULL AUTO_INCREMENT,  
+    credit_card_number varchar(16) NOT NULL,  
+    account_number varchar(13) NOT NULL,
+    mobile_number varchar(10) not null,
+	balance_amount long NOT NULL,
+	min_amount_due long NOT NULL,
+    PRIMARY KEY (id)  
+);  
+
+insert into credit_card values(1,'123456789012345','1234567890123','0588211467','20000', '2000')
+insert into credit_card values(2,'123456789012346','1234567890124','0503371256','25000', '3000')
