@@ -62,15 +62,16 @@ public class RakBankAIChatBotController {
 			String chequeBookReqNo = (String) request.getQueryResult().getParameters().get("cheque-book-req-no");
 			System.out.println(chequeBookReqNo);
 			responseString = chequeBookService.checkStatus(chequeBookReqNo);
-		} else if(null != request.getQueryResult().getParameters().get("credit-card-no")) {
-			String creditCardNo = (String) request.getQueryResult().getParameters().get("credit-card-no");
-			String requestFor = (String) request.getQueryResult().getParameters().get("request-For");
-			System.out.println(creditCardNo + " " + requestFor);
-			if(requestFor.equals("balance"))
-			  responseString = creditCardService.checkBalance(creditCardNo);
-			else if (requestFor.equals("minimum_amount"))
-			  responseString = creditCardService.checkMinimumAmountToBePaid(creditCardNo);
+		} else if(null != request.getQueryResult().getParameters().get("check-balance")) {
+			String creditCardNo = (String) request.getQueryResult().getParameters().get("check-balance");
+			System.out.println(creditCardNo);
+			responseString = creditCardService.checkBalance(creditCardNo);			
+		}else if (null != request.getQueryResult().getParameters().get("check-minimum-amount")) {
+			String creditCardNo = (String) request.getQueryResult().getParameters().get("check-minimum-amount");
+			System.out.println(creditCardNo);
+			responseString = creditCardService.checkMinimumAmountToBePaid(creditCardNo);		
 		}
+			  
 
 		// Step 3. Build the response message
 		GoogleCloudDialogflowV2IntentMessage msg = new GoogleCloudDialogflowV2IntentMessage();
